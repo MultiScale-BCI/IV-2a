@@ -21,23 +21,23 @@ scipy
 
 For the recreation of the CSP results run main_csp.py. 
 Change self.svm_kernel for testing different kernels:
-self.svm_kernel='linear'  -> self.svm_c = 0.05
-self.svm_kernel='rbf'     -> self.svm_c = 20
-self.svm_kernel='poly'    -> self.svm_c = 0.1
+*self.svm_kernel='linear'  -> self.svm_c = 0.05
+*self.svm_kernel='rbf'     -> self.svm_c = 20
+*self.svm_kernel='poly'    -> self.svm_c = 0.1
 
 ```
 python3 main_csp.py
 ```
 For the recreation of the Riemannian results run main_riemannian.py. 
 Change self.svm_kernel for testing different kernels:
-self.svm_kernel='linear'  -> self.svm_c = 0.05
-self.svm_kernel='rbf'     -> self.svm_c = 20
-self.svm_kernel='poly'    -> self.svm_c = 0.1
+*self.svm_kernel='linear'  -> self.svm_c = 0.05
+*self.svm_kernel='rbf'     -> self.svm_c = 20
+*self.svm_kernel='poly'    -> self.svm_c = 0.1
 
 Change self.settings for testing different means (0 -> Riemannian mean, 1 -> euclid mean, 2 -> identity matix):
-self.settings=0
-self.settings=1
-self.settings=2
+*self.settings=0
+*self.settings=1
+*self.settings=2
 
 ```
 python3 main_riemannian.py

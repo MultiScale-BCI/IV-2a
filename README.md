@@ -35,7 +35,7 @@ Change self.svm_kernel for testing different kernels:
 
 Change self.settings for testing different means (0 -> Riemannian mean, 1 -> euclid mean, 2 -> identity matix):
 - self.settings=0
-- self.settings=1
+- self.settings=1 
 - self.settings=2
 
 ```

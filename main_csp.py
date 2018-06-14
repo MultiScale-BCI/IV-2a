@@ -12,7 +12,7 @@ from sklearn.model_selection import KFold
 # import self defined functions 
 from csp import generate_projection,generate_eye,extract_feature
 from get_data import get_data
-from filters import load_bands 
+from filters import load_filterbank 
 
 __author__ = "Michael Hersche and Tino Rellstab"
 __email__ = "herschmi@ethz.ch,tinor@ethz.ch"
@@ -21,9 +21,9 @@ class CSP_Model:
 
 	def __init__(self):
 		self.crossvalidation = False
-		self.data_path 	= 'dataset/'
+		self.data_path 	= '/home/msc18f15/Documents/ma_bci/data/dataset4_2a/'
 		self.svm_kernel	= 'linear' #'sigmoid'#'linear' # 'sigmoid', 'rbf', 'poly'
-		self.svm_c 	= 0.05 # 0.05 for linear, 20 for rbf
+		self.svm_c 	= 0.1 # 0.05 for linear, 20 for rbf, poly: 0.1
 		self.useCSP = True
 		self.NO_splits = 5 # number of folds in cross validation 
 		self.fs = 250. # sampling frequency 
@@ -32,25 +32,36 @@ class CSP_Model:
 		self.NO_csp = 24 # Total number of CSP feature per band and timewindow
 		self.bw = np.array([2,4,8,16,32]) # bandwidth of filtered signals 
 		# self.bw = np.array([1,2,4,8,16,32])
-		self.f_bands_nom = load_bands(self.bw,self.fs) # get normalized bands 
+		self.ftype = 'butter' # 'fir', 'butter'
+		self.forder= 2 # 4
+		self.filter_bank = load_filterbank(self.bw,self.fs,order=self.forder,max_freq=40,ftype = self.ftype) # get filterbank coeffs  
+		# time_windows_flt = np.array([
+		# 						[2.5,3.5],
+		# 						[3,4],
+		# 						[3.5,4.5],
+		# 						[4,5],
+		# 						[4.5,5.5],
+		# 						[5,6],
+		# 						[2.5,4.5],
+		# 						[3,5],
+		# 						[3.5,5.5],
+		# 						[4,6],
+		# 						[2.5,6]])*self.fs # time windows in [s] x fs for using as a feature
+
 		time_windows_flt = np.array([
 								[2.5,3.5],
 								[3,4],
-								[3.5,4.5],
 								[4,5],
-								[4.5,5.5],
 								[5,6],
 								[2.5,4.5],
-								[3,5],
-								[3.5,5.5],
 								[4,6],
 								[2.5,6]])*self.fs # time windows in [s] x fs for using as a feature
 		self.time_windows = time_windows_flt.astype(int)
 		# restrict time windows and frequency bands 
 		# self.time_windows = self.time_windows[10] # use only largest timewindow
-		# self.f_bands_nom = self.f_bands_nom[18:27] # use only 4Hz bands 
+		# self.filter_bank = self.filter_bank[18:27] # use only 4Hz bands 
 		
-		self.NO_bands = len(self.f_bands_nom[:,0])
+		self.NO_bands = self.filter_bank.shape[0]
 		self.NO_time_windows = int(self.time_windows.size/2)
 		self.NO_features = self.NO_csp*self.NO_bands*self.NO_time_windows
 		self.train_time = 0
@@ -64,13 +75,13 @@ class CSP_Model:
 		start_train = time.time()
 		# 1. Apply CSP to bands to get spatial filter 
 		if self.useCSP: 
-			w = generate_projection(self.train_data,self.train_label, self.NO_csp,self.f_bands_nom,self.time_windows)
+			w = generate_projection(self.train_data,self.train_label, self.NO_csp,self.filter_bank,self.time_windows)
 		else: 
-			w = generate_eye(self.train_data,self.train_label,self.f_bands_nom,self.time_windows)
+			w = generate_eye(self.train_data,self.train_label,self.filter_bank,self.time_windows)
 
 
 		# 2. Extract features for training 
-		feature_mat = extract_feature(self.train_data,w,self.f_bands_nom,self.time_windows)
+		feature_mat = extract_feature(self.train_data,w,self.filter_bank,self.time_windows)
 
 		# 3. Stage Train SVM Model 
 		# 2. Train SVM Model 
@@ -86,13 +97,13 @@ class CSP_Model:
 
 		################################# Evaluation ###################################################
 		start_eval = time.time()
-		eval_feature_mat = extract_feature(self.eval_data,w,self.f_bands_nom,self.time_windows)
+		eval_feature_mat = extract_feature(self.eval_data,w,self.filter_bank,self.time_windows)
 
 		success_rate = clf.score(eval_feature_mat,self.eval_label)
 
 		end_eval = time.time()
 		
-		print("Time for one Evaluation " + str((end_eval-start_eval)/len(self.eval_label)) )
+		#print("Time for one Evaluation " + str((end_eval-start_eval)/len(self.eval_label)) )
 
 		self.eval_time += end_eval-start_eval
 		self.eval_trials += len(self.eval_label)
@@ -140,7 +151,7 @@ def main():
 	# Go through all subjects 
 	for model.subject in range(1,model.NO_subjects+1):
 
-		print("Subject" + str(model.subject)+":")
+		#print("Subject" + str(model.subject)+":")
 		
 
 		if model.crossvalidation:

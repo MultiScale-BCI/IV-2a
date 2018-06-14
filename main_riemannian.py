@@ -5,13 +5,15 @@ Model for Riemannian feature calculation and classification for EEG data
 '''
 
 import numpy as np
-import time
+import time, sys 
+
+
 from sklearn.svm import LinearSVC,SVC
 from sklearn.model_selection import KFold
 
 # import self defined functions 
-from riemannian import riemann_multiband
-from filters import load_bands 
+from riemannian_multiscale import riemannian_multiscale
+from filters import load_filterbank 
 from get_data import get_data
 
 __author__ = "Michael Hersche and Tino Rellstab"
@@ -21,7 +23,7 @@ class Riemannian_Model:
 
 	def __init__(self):
 		self.crossvalidation = False
-		self.data_path = 'dataset/'
+		self.data_path = '/home/msc18f15/Documents/ma_bci/data/dataset4_2a/'
 		self.svm_kernel = 'linear' #'sigmoid'#'linear' # 'sigmoid', 'rbf',
 		self.svm_c = 0.1 # for linear 0.1 (inverse),
 		self.NO_splits = 5 # number of folds in cross validation 
@@ -30,33 +32,38 @@ class Riemannian_Model:
 		self.NO_subjects = 9
 		self.NO_riem = int(self.NO_channels*(self.NO_channels+1)/2) # Total number of CSP feature per band and timewindow
 		self.bw = np.array([2,4,8,16,32]) # bandwidth of filtered signals 
-		self.f_bands_nom = load_bands(self.bw,self.fs) # get normalized bands 
+		self.ftype = 'butter' # 'fir', 'butter'
+		self.forder= 2 # 4
+		self.filter_bank = load_filterbank(self.bw,self.fs,order=self.forder,max_freq=40,ftype = self.ftype) # get filterbank coeffs 
 		time_windows_flt = np.array([[2.5,4.5],
 						[4,6],
-						[2.5,6]])*self.fs
+						[2.5,6],
+						[2.5,3.5],
+						[3,4],
+						[4,5]])*self.fs
 		self.time_windows = time_windows_flt.astype(int)
 		# restrict time windows and frequency bands 
-		self.time_windows = self.time_windows[2] # use only largest timewindow
-		#self.f_bands_nom = self.f_bands_nom[18:27] # use only 4Hz bands
-
-		self.NO_bands = len(self.f_bands_nom[:,0])
-		self.NO_time_windows = int(self.time_windows.size/2)
+		self.time_windows = self.time_windows[2:3] # use only largest timewindow
+		#self.f_bands_nom = self.f_bands_nom[18:27] # use only 4Hz-32Hz bands
+		self.rho = 0.1
+		self.NO_bands = self.filter_bank.shape[0]
+		self.NO_time_windows = self.time_windows.shape[0]
 		self.NO_features = self.NO_riem*self.NO_bands*self.NO_time_windows
-		self.avg_mat = np.zeros((self.NO_time_windows,self.NO_bands,self.NO_channels,self.NO_channels)) # default average covariance matrix
-		self.setting_desc = ["Riemannian","Euclid","NO Adaptation"]
-		self.settings = 0
+		self.riem_opt = "Riemann" # {"Riemann","Riemann_Euclid","Whitened_Euclid","No_Adaptation"}
+		# time measurements 
 		self.train_time = 0
 		self.train_trials = 0
 		self.eval_time = 0
 		self.eval_trials = 0
 
-
 	def run_riemannian(self):
 
 		################################ Training ############################################################################
 		start_train = time.time()
+
 		# 1. calculate features and mean covariance for training 
-		self.avg_mat ,feature_mat = riemann_multiband(self.train_data,self.f_bands_nom,self.time_windows,self.avg_mat,True,self.settings) 
+		riemann = riemannian_multiscale(self.filter_bank,self.time_windows,riem_opt =self.riem_opt,rho = self.rho,vectorized = True)
+		train_feat = riemann.fit(self.train_data)
 
 		# 2. Train SVM Model 
 		if self.svm_kernel == 'linear' : 
@@ -64,7 +71,7 @@ class Riemannian_Model:
 		else:
 			clf = SVC(self.svm_c,self.svm_kernel, degree=10, gamma='auto', coef0=0.0, tol=0.001, cache_size=10000, max_iter=-1, decision_function_shape='ovr')
 		
-		clf.fit(feature_mat,self.train_label) 
+		clf.fit(train_feat,self.train_label) 
 		
 		end_train = time.time()
 		self.train_time += end_train-start_train
@@ -73,13 +80,13 @@ class Riemannian_Model:
 		################################# Evaluation ###################################################
 		start_eval = time.time()
 		
-		_,eval_feature_mat = riemann_multiband(self.eval_data,self.f_bands_nom,self.time_windows,self.avg_mat, False,self.settings)
+		eval_feat = riemann.features(self.eval_data)
 
-		success_rate = clf.score(eval_feature_mat,self.eval_label)
+		success_rate = clf.score(eval_feat,self.eval_label)
 
 		end_eval = time.time()
 		
-		print("Time for one Evaluation " + str((end_eval-start_eval)/len(self.eval_label)) )
+		#print("Time for one Evaluation " + str((end_eval-start_eval)/len(self.eval_label)) )
 
 		self.eval_time += end_eval-start_eval
 		self.eval_trials += len(self.eval_label)
@@ -110,7 +117,7 @@ def main():
 
 	print("Number of used features: "+ str(model.NO_features))
 
-	print(model.setting_desc[model.settings])
+	print(model.riem_opt)
 
 	# success rate sum over all subjects 
 	success_tot_sum = 0
@@ -127,7 +134,7 @@ def main():
 	# Go through all subjects 
 	for model.subject in range(1,model.NO_subjects+1):
 
-		print("Subject" + str(model.subject)+":")
+		#print("Subject" + str(model.subject)+":")
 		
 
 		if model.crossvalidation:

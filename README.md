@@ -32,10 +32,11 @@ Change self.svm_kernel for testing different kernels:
 - self.svm_kernel='linear'  -> self.svm_c = 0.1
 - self.svm_kernel='rbf'     -> self.svm_c = 20
 
-Change self.settings for testing different means (0 -> Riemannian mean, 1 -> euclid mean, 2 -> identity matix):
-- self.settings=0
-- self.settings=1 
-- self.settings=2
+Change self.riem_opt for testing different means:
+- self.riem_opt = "Riemann"
+- self.riem_opt = "Riemann_Euclid" 
+- self.riem_opt = "Whitened_Euclid"
+- self.riem_opt = "No_Adaptation"
 
 ```
 python3 main_riemannian.py

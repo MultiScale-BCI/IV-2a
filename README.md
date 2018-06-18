@@ -1,6 +1,8 @@
 # Fast and Accurate Multiclass Inference for MI-BCIs Using Large Multiscale Temporal and Spectral Features
 
-This is the code of a conference paper for EUSIPCO 2018. Feel free to check our results. 
+This is the code of a conference paper for EUSIPCO 2018. It can be found at:
+https://github.com/MultiScale-BCI/IV-2a/files/2111134/Fast_and_Accurate_Multiclass_Inference_for_MI-BCIs.pdf
+Feel free to check our results. 
 
 ## Getting Started
 

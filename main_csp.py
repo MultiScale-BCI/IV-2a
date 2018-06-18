@@ -35,27 +35,27 @@ class CSP_Model:
 		self.ftype = 'butter' # 'fir', 'butter'
 		self.forder= 2 # 4
 		self.filter_bank = load_filterbank(self.bw,self.fs,order=self.forder,max_freq=40,ftype = self.ftype) # get filterbank coeffs  
-		# time_windows_flt = np.array([
-		# 						[2.5,3.5],
-		# 						[3,4],
-		# 						[3.5,4.5],
-		# 						[4,5],
-		# 						[4.5,5.5],
-		# 						[5,6],
-		# 						[2.5,4.5],
-		# 						[3,5],
-		# 						[3.5,5.5],
-		# 						[4,6],
-		# 						[2.5,6]])*self.fs # time windows in [s] x fs for using as a feature
-
 		time_windows_flt = np.array([
-								[2.5,3.5],
-								[3,4],
-								[4,5],
-								[5,6],
-								[2.5,4.5],
-								[4,6],
-								[2.5,6]])*self.fs # time windows in [s] x fs for using as a feature
+		 						[2.5,3.5],
+		 						[3,4],
+		 						[3.5,4.5],
+		 						[4,5],
+		 						[4.5,5.5],
+		 						[5,6],
+		 						[2.5,4.5],
+		 						[3,5],
+		 						[3.5,5.5],
+		 						[4,6],
+		 						[2.5,6]])*self.fs # time windows in [s] x fs for using as a feature
+
+		# time_windows_flt = np.array([
+		#						[2.5,3.5],
+		#						[3,4],
+		#						[4,5],
+		#						[5,6],
+		#						[2.5,4.5],
+		#						[4,6],
+		#						[2.5,6]])*self.fs # time windows in [s] x fs for using as a feature
 		self.time_windows = time_windows_flt.astype(int)
 		# restrict time windows and frequency bands 
 		# self.time_windows = self.time_windows[10] # use only largest timewindow

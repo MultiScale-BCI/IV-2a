@@ -2,7 +2,7 @@
 
 This is the code of a conference paper for EUSIPCO 2018. It can be found at:
 
-https://github.com/MultiScale-BCI/IV-2a/files/2111134/Fast_and_Accurate_Multiclass_Inference_for_MI-BCIs.pdf
+https://arxiv.org/abs/1806.06823
 
 Feel free to check our results. 
 

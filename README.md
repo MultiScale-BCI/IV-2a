@@ -1,15 +1,13 @@
 # Fast and Accurate Multiclass Inference for MI-BCIs Using Large Multiscale Temporal and Spectral Features
 
-This is the code of a conference paper for EUSIPCO 2018. It can be found at:
-
-https://arxiv.org/abs/1806.06823
+This is the code of a conference paper for EUSIPCO 2018. It can be found [here](https://arxiv.org/abs/1806.06823)
 
 Feel free to check our results. 
 
 ## Getting Started
 
 First, download the source code.
-Then, download the dataset "Four class motor imagery (001-2014)" of the BCI competition IV-2a from: http://bnci-horizon-2020.eu/database/data-sets. Put all files of the dataset (A01T.mat-A09E.mat) into a subfolder within the project called 'dataset' or change self.data_path in main_csp and main_riemannian. 
+Then, download the dataset "Four class motor imagery (001-2014)" of the [BCI competition IV-2a](http://bnci-horizon-2020.eu/database/data-sets). Put all files of the dataset (A01T.mat-A09E.mat) into a subfolder within the project called 'dataset' or change self.data_path in main_csp and main_riemannian. 
 
 ### Prerequisites
 

@@ -30,7 +30,7 @@ Change self.svm_kernel for testing different kernels:
 - self.svm_kernel='poly'    -> self.svm_c = 0.1
 
 ```
-python3 main_csp.py
+$ python3 main_csp.py
 ```
 For the recreation of the Riemannian results run main_riemannian.py. 
 Change self.svm_kernel for testing different kernels:
@@ -44,7 +44,7 @@ Change self.riem_opt for testing different means:
 - self.riem_opt = "No_Adaptation"
 
 ```
-python3 main_riemannian.py
+$ python3 main_riemannian.py
 ```
 
 ## Authors

@@ -15,6 +15,11 @@ Then, download the dataset "Four class motor imagery (001-2014)" of the [BCI com
 - pyriemann
 - scipy
 
+The packages can be installed easily with conda and the _config.yml file: 
+```
+$ conda env create -f _config.yml -n msenv
+$ source activate msenv 
+```
 
 ### Recreate results
 
